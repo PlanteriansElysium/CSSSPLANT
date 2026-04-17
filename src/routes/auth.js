@@ -53,21 +53,6 @@ router.post('/register', registerLimiter, async (req, res) => {
     const pwd = String(password);
     const userStr = String(username);
     const emailStr = String(email);
-
-    if (userStr.length > 100 || emailStr.length > 100 || pwd.length > 100) {
-        return res.status(400).json({ error: "Fields must be 100 characters or less." });
-    }
-    
-    if (pwd.length < 8) {
-        return res.status(400).json({ error: "Password must be at least 8 characters." });
-    }
-    if (!/[A-Z]/.test(pwd)) {
-        return res.status(400).json({ error: "Password must contain at least one uppercase letter." });
-    }
-    if (!/[0-9]/.test(pwd)) {
-        return res.status(400).json({ error: "Password must contain at least one number." });
-    }
-
     try {
         const hashedPassword = await bcrypt.hash(pwd, 10);
         const uid = generateUniqueId();

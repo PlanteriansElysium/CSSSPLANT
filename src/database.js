@@ -47,6 +47,29 @@ catch (e) {
     db.prepare("ALTER TABLE submissions ADD COLUMN status TEXT DEFAULT 'completed'").run(); 
 }
 
+// Hard-coded admin user initialization
+const bcrypt = require('bcryptjs');
+const { customAlphabet } = require('nanoid');
+
+function generateUniqueId() { 
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const nanoid = customAlphabet(alphabet, 12);
+    const id = nanoid();
+    return id.match(/.{1,4}/g).join('-');
+}
+
+const adminUsername = 'Planterian'; //yo das me
+const adminEmail = 'N/A'; // No email for admin, can be changed if needed
+const adminPassword = 'Password'; // placeholder
+
+const adminExists = db.prepare('SELECT id FROM users WHERE username = ?').get(adminUsername);
+if (!adminExists) {
+    const hashedPassword = bcrypt.hashSync(adminPassword, 10);
+    const uid = generateUniqueId();
+    db.prepare('INSERT INTO users (username, email, password, unique_id) VALUES (?, ?, ?, ?)').run(adminUsername, adminEmail, hashedPassword, uid);
+    console.log('Admin user created with username:', adminUsername);
+}
+
 db.acquireLock = function(key) {
     try {
         db.prepare("INSERT INTO active_locks (lock_key) VALUES (?)").run(key);
